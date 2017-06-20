@@ -1,0 +1,92 @@
+{
+	"samsung_remote": "Samsung Remote",
+	"views": {
+		"generic_done": {
+			"title": "Adding device!\u0000"
+		},
+		"model_select": {
+			"up_arrow": {
+				"title": "Identify your remote",
+				"body": "Press the up arrow button on your remote to continue"
+			},
+			"defaults_button": "Skip and use Defaults"
+		}
+	},
+	"ir_generator": {
+		"button_labels": {
+			"onoff": "Power On/Off\u0000",
+			"power_on": "Power On\u0000",
+			"power_off": "Power Off\u0000",
+			"number_0": "0\u0000",
+			"number_1": "1\u0000",
+			"number_2": "2\u0000",
+			"number_3": "3\u0000",
+			"number_4": "4\u0000",
+			"number_5": "5\u0000",
+			"number_6": "6\u0000",
+			"number_7": "7\u0000",
+			"number_8": "8\u0000",
+			"number_9": "9\u0000",
+			"source": "Source\u0000",
+			"sleep": "Sleep\u0000",
+			"volume_up": "Volume Up\u0000",
+			"volume_down": "Volume Down\u0000",
+			"mute": "Mute\u0000",
+			"channel_up": "Channel Up\u0000",
+			"channel_down": "Channel Down\u0000",
+			"previous_channel": "Previous Channel\u0000",
+			"green": "Green\u0000",
+			"menu": "Menu\u0000",
+			"tv": "TV\u0000",
+			"info": "Info\u0000",
+			"pip": "Picture in Picture\u0000",
+			"closed_captioning": "Closed captioning\u0000",
+			"picture_mode_toggle": "Toggle picture mode\u0000",
+			"audio_mode_toggle": "Toggle audio mode\u0000",
+			"ttx_mix": "Teletext/Mix\u0000",
+			"exit": "Exit\u0000",
+			"pip_channel_up": "PiP Channel Up\u0000",
+			"pip_channel_down": "PiP Channel Down\u0000",
+			"aspect_ratio_toggle": "Toggle Aspect Ratio\u0000",
+			"rewind": "Rewind\u0000",
+			"play": "Play\u0000",
+			"stop": "Stop\u0000",
+			"fast_forward": "Fast Forward\u0000",
+			"record": "Record\u0000",
+			"pause": "Pause\u0000",
+			"tools": "Tools\u0000",
+			"guide": "Guide\u0000",
+			"return": "Return\u0000",
+			"enter": "Enter\u0000",
+			"arrow_up": "Up Arrow\u0000",
+			"arrow_down": "Down Arrow\u0000",
+			"arrow_left": "Left Arrow\u0000",
+			"arrow_right": "Right Arrow\u0000",
+			"pc": "PC\u0000",
+			"channel_list": "Channel List\u0000",
+			"red": "Red\u0000",
+			"yellow": "Yellow\u0000",
+			"blue": "Blue\u0000",
+			"content": "Content\u0000",
+			"hdmi_1": "HDMI 1\u0000",
+			"hdmi_2": "HDMI 2\u0000",
+			"hdmi_3": "HDMI 3\u0000",
+			"hdmi_4": "HDMI 4\u0000",
+			"av1": "AV1\u0000",
+			"av2": "AV2\u0000",
+			"component_1": "Component 1\u0000",
+			"component_2": "Component 2\u0000",
+			"clock_set": "Set Clock\u0000",
+			"media_play": "Play Media\u0000",
+			"internet_tv": "Internet TV\u0000",
+			"3d": "3D\u0000",
+			"extra": "Extra\u0000",
+			"sports": "Sports\u0000"
+		},
+		"flow": {
+			"cmd_received": "Button is Pressed\u0000",
+			"send_cmd": "Send Command\u0000",
+			"send_cmd_number": "Set Channel\u0000"
+		}
+	}
+}
