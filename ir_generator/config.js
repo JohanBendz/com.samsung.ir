@@ -79,27 +79,6 @@ const cmds = {
 	},
 };
 
-function idToCommand(id) {
-	const command = `00000000${id.toString(2)}`
-		.slice(-8)
-		.split('')
-		.reverse()
-		.map(Number);
-	return command.concat(command.map(bit => bit ? 0 : 1));
-}
-for (const type in cmds) {
-	for (const cmd in cmds[type]) {
-		if (typeof cmds[type][cmd] === 'object') {
-			for (const subtype in cmds[type][cmd]) {
-				cmds[type][cmd][subtype] = idToCommand(cmds[type][cmd][subtype]);
-			}
-		} else {
-			cmds[type][cmd] = idToCommand(cmds[type][cmd]);
-		}
-	}
-}
-
-
 const config = {
 	views: {
 		modelSelect: {
@@ -152,10 +131,11 @@ const config = {
 			signal: {
 				id: 'test',
 				sof: [4535, 4465],
-				eof: [583],
+				eof: [590],
+				carrier: 37900,
 				words: [
-					[585, 533],
-					[584, 1653],
+					[590, 590],
+					[590, 1690],
 				],
 				prefixData: [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
 				interval: 100,
@@ -163,6 +143,14 @@ const config = {
 				repetitions: 1,
 				minimalLength: 32,
 				maximalLength: 32,
+				parseCmd: id => {
+					const command = `00000000${id.toString(2)}`
+						.slice(-8)
+						.split('')
+						.reverse()
+						.map(Number);
+					return command.concat(command.map(bit => bit ? 0 : 1));
+				},
 				cmds,
 			},
 			cmdType: 'tv',

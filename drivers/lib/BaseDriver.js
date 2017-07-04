@@ -62,41 +62,6 @@ module.exports = class BaseDriver extends EventEmitter {
 		this.cmdStructure = { types: {}, subTypes: {} };
 		this.deviceCmdCache = new Map();
 
-		if (this.config.cmds) {
-			this.config.cmds
-				.map(this.parseCmdId.bind(this))
-				.forEach(cmd => {
-					if (cmd) {
-						if (cmd.type) {
-							this.cmdStructure.types[cmd.type] = this.cmdStructure.types[cmd.type] || { subTypes: {} };
-							if (cmd.subType) {
-								this.cmdStructure.types[cmd.type].subTypes[cmd.subType] = this.cmdStructure.types[cmd.type].subTypes[cmd.subType] || {}; // eslint-disable-line
-								this.cmdStructure.types[cmd.type].subTypes[cmd.subType][cmd.cmd] = {
-									id: cmd.id,
-									label: this.getCmdLabel(cmd),
-								};
-							} else {
-								this.cmdStructure.types[cmd.type][cmd.cmd] = {
-									id: cmd.id,
-									label: this.getCmdLabel(cmd),
-								};
-							}
-						} else if (cmd.subType) {
-							this.cmdStructure.subTypes[cmd.subType] = this.cmdStructure.subTypes[cmd.subType] || {};
-							this.cmdStructure.subTypes[cmd.subType][cmd.cmd] = {
-								id: cmd.id,
-								label: this.getCmdLabel(cmd),
-							};
-						} else {
-							this.cmdStructure[cmd.cmd] = {
-								id: cmd.id,
-								label: this.getCmdLabel(cmd),
-							};
-						}
-					}
-				});
-		}
-
 		this.logLevel = 4;
 		this.captureLevel = 5;
 		this.logger = {
@@ -170,6 +135,41 @@ module.exports = class BaseDriver extends EventEmitter {
 			this.logger.setExtra = logger.setExtra.bind(logger);
 			this.logger.captureMessage = logger.captureMessage.bind(logger);
 			this.logger.captureException = logger.captureException.bind(logger);
+		}
+
+		if (this.config.cmds) {
+			this.config.cmds
+				.map(this.parseCmdId.bind(this))
+				.forEach(cmd => {
+					if (cmd) {
+						if (cmd.type) {
+							this.cmdStructure.types[cmd.type] = this.cmdStructure.types[cmd.type] || { subTypes: {} };
+							if (cmd.subType) {
+								this.cmdStructure.types[cmd.type].subTypes[cmd.subType] = this.cmdStructure.types[cmd.type].subTypes[cmd.subType] || {}; // eslint-disable-line
+								this.cmdStructure.types[cmd.type].subTypes[cmd.subType][cmd.cmd] = {
+									id: cmd.id,
+									label: this.getCmdLabel(cmd),
+								};
+							} else {
+								this.cmdStructure.types[cmd.type][cmd.cmd] = {
+									id: cmd.id,
+									label: this.getCmdLabel(cmd),
+								};
+							}
+						} else if (cmd.subType) {
+							this.cmdStructure.subTypes[cmd.subType] = this.cmdStructure.subTypes[cmd.subType] || {};
+							this.cmdStructure.subTypes[cmd.subType][cmd.cmd] = {
+								id: cmd.id,
+								label: this.getCmdLabel(cmd),
+							};
+						} else {
+							this.cmdStructure[cmd.cmd] = {
+								id: cmd.id,
+								label: this.getCmdLabel(cmd),
+							};
+						}
+					}
+				});
 		}
 
 		this.on('frame', (frame) => {
@@ -700,6 +700,9 @@ module.exports = class BaseDriver extends EventEmitter {
 	getCmdLabel(cmdObj) {
 		cmdObj = typeof cmdObj === 'string' ? this.parseCmdId(cmdObj) : cmdObj;
 		let result = (this.getCmd(cmdObj) || {}).label;
+		if (result) {
+			return result;
+		}
 		if (!result && cmdObj.type && cmdObj.subType) {
 			const key = `cmds.${cmdObj.type}.${cmdObj.cmd}.${cmdObj.subType}`;
 			result = __(key);
@@ -735,7 +738,10 @@ module.exports = class BaseDriver extends EventEmitter {
 			result = __(key);
 			result = result === key ? null : result;
 		}
-		return result || cmdObj.cmd;
+		if (!result) {
+			return cmdObj.cmd;
+		}
+		return result;
 	}
 
 	getCmdsForDevice(device) {

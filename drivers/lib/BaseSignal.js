@@ -60,7 +60,7 @@ module.exports = class BaseSignal extends EventEmitter {
 			this.debounceBuffer = this.signal.debouncers.get(this.debounceTimeout);
 			this.signal.on('payload', payload => {
 				const payloadStr = payload.join('');
-				this.logger.warn(`[Signal ${signalKey} ~${this.debounceTimeout}] raw payload:`, payloadStr);
+				this.logger.debug(`[Signal ${signalKey} ~${this.debounceTimeout}] raw payload:`, payloadStr);
 				const debouncer = this.debounce(payload);
 				if (debouncer) {
 					debouncer.pause();

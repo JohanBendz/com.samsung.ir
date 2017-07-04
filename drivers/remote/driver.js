@@ -74,16 +74,10 @@ const config = {
 				svg: '../../ir_generator/assets/remote_up_arrow.svg',
 				type: 'payload',
 				options: [{
-					payload: [
-						[0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1],
-						[1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1]
-					],
+					payload: [96, 97],
 					metadata: {}
 				}, {
-					payload: [
-						[1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-						[1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1]
-					],
+					payload: [95, 95],
 					metadata: {
 						cmdSubType: 'old'
 					}
@@ -105,7 +99,7 @@ const config = {
 			append: [],
 			id: 'modelSelect'
 		}, {
-			template: '../lib/pair/done.html',
+			template: '../lib/433/pair/done.html',
 			options: {
 				title: 'views.generic_done.title',
 				prepend: '',

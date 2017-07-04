@@ -1,6 +1,6 @@
 <script>
 var options = {
-	template: '../lib/pair/done.html',
+	template: '../lib/433/pair/done.html',
 	id: 'generic_done',
 	title: 'views.generic_done.title'
 };
@@ -49,8 +49,7 @@ function nextView(){
 				device.virtualCapabilities = $(virtualDeviceClass).data('capabilities').split(',');
 			}
 
-			Homey.addDevice(device, function (err) {
-				console.log('added device', device, err);
+			Homey.addDevice(device, function () {
 				Homey.done();
 			});
 		});

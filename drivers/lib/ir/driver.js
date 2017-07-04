@@ -26,6 +26,41 @@ module.exports = class Driver extends BaseDriver {
 		}
 	}
 
+	_payloadToData(payload) { // Convert received data to usable variables
+		this.logger.info(`Received payload [${payload.join(', ')}]`);
+	}
+
+	send(frame, callback, options) {
+		this.logger.silly('Driver:send(frame, callback, options)', frame, callback, options);
+		return new Promise((resolve, reject) => {
+			callback = typeof callback === 'function' ? callback : () => null;
+			options = options || {};
+			frame = frame.map(Number);
+			this.emit('before_send', frame);
+
+			if (typeof options.beforeSendData === 'function') {
+				options.beforeSendData(frame);
+			}
+			this.emit('send', frame);
+			resolve((options.signal || this.signal).send(frame).then(result => {
+				if (callback) callback(null, result);
+				if (typeof options.afterSendData === 'function') {
+					options.afterSendData(frame);
+				}
+				this.emit('after_send', frame);
+			}).catch(err => {
+				this.logger.error(err);
+				if (callback) callback(err);
+				this.emit('error', err);
+				throw err;
+			}));
+		}).catch((e) => {
+			setTimeout(() => {
+				throw e;
+			});
+		});
+	}
+
 	sendProgramSignal(device, callback) {
 		this.logger.silly('Driver:sendProgramSignal(device, callback)', device, callback);
 		const exports = this.getExports();
