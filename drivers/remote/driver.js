@@ -67,17 +67,17 @@ const config = {
 	pair: {
 		viewOrder: ['modelSelect', 'generic_done'],
 		views: [{
-			template: '../../ir_generator/views/model_select.html',
+			template: '../lib/ir/pair/model_select.html',
 			options: {
 				title: 'views.model_select.up_arrow.title',
 				body: 'views.model_select.up_arrow.body',
 				svg: '../../ir_generator/assets/remote_up_arrow.svg',
-				type: 'payload',
+				type: 'command',
 				options: [{
-					payload: [96, 97],
+					command: ['tv$~arrow_up', 'tv$~arrow_down'],
 					metadata: {}
 				}, {
-					payload: [95, 95],
+					command: ['tv$~arrow_up~$old', 'tv$~arrow_down~$old'],
 					metadata: {
 						cmdSubType: 'old'
 					}
@@ -92,9 +92,9 @@ const config = {
 				next: true,
 				previous: true
 			},
-			prepend: ['../../assets/ir_generator/css/styles.css',
-				'../../assets/ir_generator/css/svg.css',
-				'../../assets/ir_generator/js/svghighlighter.js'
+			prepend: ['../../assets/generator/css/styles.css',
+				'../../assets/generator/css/svg.css',
+				'../../assets/generator/js/svghighlighter.js'
 			],
 			append: [],
 			id: 'modelSelect'

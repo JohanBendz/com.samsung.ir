@@ -119,6 +119,11 @@ module.exports = class Driver extends BaseDriver {
 			socket.emit('payload', payload);
 		};
 		this.on('payload', payloadListener);
+		const commandListener = (command) => {
+			this.logger.verbose('emitting command to pairing wizard', command);
+			socket.emit('command', command);
+		};
+		this.on('cmd', commandListener);
 
 		this.pairingDevice = this.generateDevice();
 
@@ -353,6 +358,7 @@ module.exports = class Driver extends BaseDriver {
 			this.logger.verbose('Driver:pair->toggle(data, callback)+this.pairingDevice', data, callback, this.pairingDevice);
 			this.isPairing = false;
 			this.removeListener('payload', payloadListener);
+			this.removeListener('cmd', commandListener);
 			this.removeListener('frame', receivedListener);
 			this.removeListener('highlight', highlightListener);
 			this.pairingDevice = null;

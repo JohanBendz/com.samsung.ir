@@ -22,9 +22,9 @@ module.exports = {
 				previous: true,
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		list_devices: {
@@ -46,8 +46,8 @@ module.exports = {
 				previous: true,
 			},
 			append: [
-				'../../assets/generator/js/default/list_devices.js',
-				'../../assets/generator/css/default/list_devices.css',
+				'../../../assets/generator/js/default/list_devices.js',
+				'../../../assets/generator/css/default/list_devices.css',
 			],
 		},
 		list_devices_singular: {
@@ -69,8 +69,8 @@ module.exports = {
 				previous: true,
 			},
 			append: [
-				'../../assets/generator/js/default/list_devices.js',
-				'../../assets/generator/css/default/list_devices.css',
+				'../../../assets/generator/js/default/list_devices.js',
+				'../../../assets/generator/css/default/list_devices.css',
 			],
 		},
 		add_devices: {
@@ -116,9 +116,9 @@ module.exports = {
 				previous: true,
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_imitate: {
@@ -155,8 +155,8 @@ module.exports = {
 				next: true,
 			},
 			prepend: [
-				'../../assets/generator/css/codewheel.css',
-				'../../assets/generator/js/codewheel.js',
+				'../../../assets/generator/css/codewheel.css',
+				'../../../assets/generator/js/codewheel.js',
 			],
 		},
 		generic_dipswitch: {
@@ -181,8 +181,8 @@ module.exports = {
 				next: true,
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/dipswitch.css',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/dipswitch.css',
 			],
 		},
 		generic_test_remote: {
@@ -210,9 +210,9 @@ module.exports = {
 				next: true,
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_program: {
@@ -227,9 +227,9 @@ module.exports = {
 				},
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_test_switch: {
@@ -240,7 +240,7 @@ module.exports = {
 					default: 'views.generic_test_switch.title',
 				},
 				svg: {
-					default: '../../assets/generator/images/light.svg',
+					default: '../../../assets/generator/images/light.svg',
 				},
 				body: {
 					default: 'views.generic_test_switch.body',
@@ -253,9 +253,9 @@ module.exports = {
 				},
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_test_button: {
@@ -273,9 +273,9 @@ module.exports = {
 				},
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_test_button_2: {
@@ -322,9 +322,9 @@ module.exports = {
 				},
 			},
 			prepend: [
-				'../../assets/generator/css/styles.css',
-				'../../assets/generator/css/svg.css',
-				'../../assets/generator/js/svghighlighter.js',
+				'../../../assets/generator/css/styles.css',
+				'../../../assets/generator/css/svg.css',
+				'../../../assets/generator/js/svghighlighter.js',
 			],
 		},
 		generic_choose_slave: {

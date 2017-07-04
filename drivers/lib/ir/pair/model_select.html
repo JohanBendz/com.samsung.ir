@@ -80,7 +80,7 @@
 						payloads[Array.isArray(payload) ? payload.join('') : payload] = option;
 					});
 				} else {
-					payloads[Array.isArray(payload) ? payload.join('') : payload] = option;
+					payloads[Array.isArray(option.payload) ? option.payload.join('') : option.payload] = option;
 				}
 			});
 			var keys = Object.keys(payloads);
@@ -99,23 +99,23 @@
 			opts.options.forEach(function (option) {
 				if (Array.isArray(option.command)) {
 					option.command.forEach(function (cmd) {
-						payloads[cmd] = option;
+					    commands[cmd] = option;
 					});
 				} else {
-					payloads[cmd] = option;
+					commands[option.command] = option;
 				}
 			});
 			var cmds = Object.keys(commands);
 			var done = false;
-			var onPayloadListener = function (cmd) {
+			var onCommandListener = function (cmd) {
 				if (done) return;
-				console.log('GOT FRAME', data);
+				console.log('GOT CMD', cmd);
 				if (!done && cmds.indexOf(cmd) !== -1) {
 					done = true;
-					next(payloads[cmd]);
+					next(commands[cmd]);
 				}
 			};
-			Homey.on('command', onPayloadListener);
+			Homey.on('command', onCommandListener);
 		} else if (opts.type === 'button') {
 			console.log('type is button', opts);
 			opts.options.forEach(function (option) {

@@ -80,32 +80,6 @@ const cmds = {
 };
 
 const config = {
-	views: {
-		modelSelect: {
-			template: './views/model_select.html',
-			options: {
-				options: {
-					required: false,
-				},
-				svgWidth: {
-					default: '80vw',
-				},
-				svgHeight: {
-					default: '70vh',
-				},
-				type: {
-					default: 'payload',
-				},
-				next: true,
-				previous: true,
-			},
-			prepend: [
-				'../assets/ir_generator/css/styles.css',
-				'../assets/ir_generator/css/svg.css',
-				'../assets/ir_generator/js/svghighlighter.js',
-			],
-		},
-	},
 	devices: {
 		remote: {
 			// logLevel: 'verbose',
@@ -210,14 +184,14 @@ const config = {
 						title: 'views.model_select.up_arrow.title',
 						body: 'views.model_select.up_arrow.body',
 						svg: './assets/remote_up_arrow.svg',
-						type: 'payload',
+						type: 'command',
 						options: [
 							{
-								payload: [cmds.tv.arrow_up.default, cmds.tv.arrow_down.default],
+								command: ['tv$~arrow_up', 'tv$~arrow_down'],
 								metadata: {},
 							},
 							{
-								payload: [cmds.tv.arrow_up.old, cmds.tv.arrow_down.old],
+								command: ['tv$~arrow_up~$old', 'tv$~arrow_down~$old'],
 								metadata: { cmdSubType: 'old' },
 							},
 						],
