@@ -124,7 +124,7 @@ module.exports = {
 				],
 				prefixData: [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
 				interval: 100,
-				sensitivity: 0.3,
+				sensitivity: 0.5,
 				repetitions: 1,
 				minimalLength: 32,
 				maximalLength: 32,
