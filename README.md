@@ -1,4 +1,4 @@
-#Samsung Infra Red Remote app
+#Samsung Infrared Remote app
 
 This app enables Homey to listen to signals from Samsung IR remotes and can send IR remote signals to your Samsung TV.
 

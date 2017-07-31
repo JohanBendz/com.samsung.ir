@@ -137,39 +137,62 @@ module.exports = class BaseDriver extends EventEmitter {
 			this.logger.captureException = logger.captureException.bind(logger);
 		}
 
-		if (this.config.cmds) {
-			this.config.cmds
-				.map(this.parseCmdId.bind(this))
-				.forEach(cmd => {
-					if (cmd) {
-						if (cmd.type) {
-							this.cmdStructure.types[cmd.type] = this.cmdStructure.types[cmd.type] || { subTypes: {} };
-							if (cmd.subType) {
-								this.cmdStructure.types[cmd.type].subTypes[cmd.subType] = this.cmdStructure.types[cmd.type].subTypes[cmd.subType] || {}; // eslint-disable-line
-								this.cmdStructure.types[cmd.type].subTypes[cmd.subType][cmd.cmd] = {
-									id: cmd.id,
-									label: this.getCmdLabel(cmd),
-								};
-							} else {
-								this.cmdStructure.types[cmd.type][cmd.cmd] = {
-									id: cmd.id,
-									label: this.getCmdLabel(cmd),
-								};
-							}
-						} else if (cmd.subType) {
-							this.cmdStructure.subTypes[cmd.subType] = this.cmdStructure.subTypes[cmd.subType] || {};
-							this.cmdStructure.subTypes[cmd.subType][cmd.cmd] = {
+		this.signalOptions = Object.assign(
+			{
+				cmdNumberPrefix: 'number_',
+				minTxInterval: 100,
+			},
+			this.config.signalDefinition.options || {}
+		);
+
+		this.emulateToggleBits = this.config.signalDefinition.type === 'prontohex' && this.signalOptions.emulateToggleBits;
+		this.cmds = (Array.isArray(this.config.signalDefinition.cmds) ? this.config.signalDefinition.cmds : []);
+
+		if (this.emulateToggleBits) {
+			this.cmds = this.cmds.filter(cmd => cmd.indexOf('_1_') === -1);
+		}
+		if (this.cmds && !this.config.signalDefinition.disableAutoSort && this.sortCmd) {
+			this.cmds = this.cmds.sort(this.sortCmd.bind(this, this.cmds.slice()));
+		}
+		this.logger.info('Cmd List:', this.cmds);
+
+		const nonTranslated = this.cmds
+			.map(this.parseCmdId.bind(this))
+			.map(cmd => {
+				if (cmd) {
+					if (cmd.type) {
+						this.cmdStructure.types[cmd.type] = this.cmdStructure.types[cmd.type] || { subTypes: {} };
+						if (cmd.subType) {
+							this.cmdStructure.types[cmd.type].subTypes[cmd.subType] = this.cmdStructure.types[cmd.type].subTypes[cmd.subType] || {}; // eslint-disable-line
+							return this.cmdStructure.types[cmd.type].subTypes[cmd.subType][cmd.cmd] = {
 								id: cmd.id,
 								label: this.getCmdLabel(cmd),
 							};
 						} else {
-							this.cmdStructure[cmd.cmd] = {
+							return this.cmdStructure.types[cmd.type][cmd.cmd] = {
 								id: cmd.id,
 								label: this.getCmdLabel(cmd),
 							};
 						}
+					} else if (cmd.subType) {
+						this.cmdStructure.subTypes[cmd.subType] = this.cmdStructure.subTypes[cmd.subType] || {};
+						return this.cmdStructure.subTypes[cmd.subType][cmd.cmd] = {
+							id: cmd.id,
+							label: this.getCmdLabel(cmd),
+						};
+					} else {
+						return this.cmdStructure[cmd.cmd] = {
+							id: cmd.id,
+							label: this.getCmdLabel(cmd),
+						};
 					}
-				});
+				}
+			})
+			.filter(cmd => cmd.label.indexOf('\u0000\u0000') !== -1);
+
+		if (nonTranslated.length) {
+			this.logger.info('Missing translations for:');
+			nonTranslated.reduce((list, cmd) => list.add(cmd.label), new Set()).forEach(cmd => console.log(`${cmd}: '',`));
 		}
 
 		this.on('frame', (frame) => {
@@ -177,7 +200,7 @@ module.exports = class BaseDriver extends EventEmitter {
 		});
 
 		if (!this.payloadToData) {
-			if (this.config.cmds && this.config.cmds.length) {
+			if (this.cmds && this.cmds.length) {
 				this.payloadToData = () => null;
 			} else {
 				this.payloadToData = this._payloadToData;
@@ -220,7 +243,11 @@ module.exports = class BaseDriver extends EventEmitter {
 		this.signal = new this.Signal(
 			this.config.signal,
 			this.payloadToData.bind(this),
-			{ debounceTime: this.config.debounceTimeout || 500, minTxInterval: this.config.minTxInterval || 0 },
+			{
+				debounceTime: this.config.debounceTimeout || 500,
+				minTxInterval: this.signalOptions.minTxInterval || 0,
+				signalDefinition: this.config.signalDefinition,
+			},
 			this.logger
 		);
 
@@ -565,7 +592,14 @@ module.exports = class BaseDriver extends EventEmitter {
 				options.beforeSendCmd(cmd, cmdKey);
 			}
 			this.emit('send_cmd', cmd);
-			resolve((options.signal || this.signal).sendCmd(cmdKey.id).then(result => {
+			let sendCmd = cmdKey.id;
+			if (this.emulateToggleBits) {
+				const cmdKeyObj = this.parseCmdId(cmdKey.id);
+				sendCmd = `${cmdKeyObj.type ? `${cmdKeyObj.type}$~` : ''
+					}${cmdKeyObj.cmd}${(options.signal || this.signal).shouldToggle() ? '_1_' : ''
+					}${cmdKeyObj.subType ? `~$${cmdKeyObj.subType}` : ''}`;
+			}
+			resolve((options.signal || this.signal).sendCmd(sendCmd).then(result => {
 				if (callback) callback(null, result);
 				if (typeof options.afterSendCmd === 'function') {
 					options.afterSendCmd(cmd, cmdKey);
@@ -597,7 +631,10 @@ module.exports = class BaseDriver extends EventEmitter {
 		return {
 			name: __(this.config.name),
 			data: Object.assign(
-				{ overridden: false },
+				{
+					overridden: false,
+					id: this.config.id,
+				},
 				data,
 				{ driver_id: this.config.id },
 				typeObj
@@ -739,15 +776,18 @@ module.exports = class BaseDriver extends EventEmitter {
 			result = result === key ? null : result;
 		}
 		if (!result) {
-			return cmdObj.cmd;
+			return `${cmdObj.cmd}\u0000\u0000`;
 		}
 		return result;
 	}
 
 	getCmdsForDevice(device) {
 		device = this.getDevice(device);
-		const cacheKey = `${device.cmdType && device.cmdType !== 'default' ? device.cmdType : ''
-			}$~$${device.cmdSubType && device.cmdSubType !== 'default' ? device.cmdSubType : ''}`;
+		const typeDef = Object.assign({}, device, device.metadata);
+		const cmdType = typeDef.hasOwnProperty('cmdType') ? typeDef.cmdType : this.config.cmdType;
+		const cmdSubType = typeDef.hasOwnProperty('cmdSubType') ? typeDef.cmdSubType : this.config.cmdSubType;
+		const cacheKey = `${cmdType && cmdType !== 'default' ? cmdType : ''
+			}$~$${cmdSubType && cmdSubType !== 'default' ? cmdSubType : ''}`;
 		if (!this.deviceCmdCache.has(cacheKey)) {
 			const resultMap = new Map();
 			const addCmds = (obj) => {
@@ -759,13 +799,13 @@ module.exports = class BaseDriver extends EventEmitter {
 			};
 
 			addCmds(this.cmdStructure);
-			if (device.cmdSubType && device.cmdSubType !== 'default') {
-				addCmds(this.cmdStructure.subTypes[device.cmdSubType]);
+			if (cmdSubType && cmdSubType !== 'default') {
+				addCmds(this.cmdStructure.subTypes[cmdSubType]);
 			}
-			if (device.cmdType && device.cmdType !== 'default') {
-				addCmds(this.cmdStructure.types[device.cmdType]);
-				if (device.cmdSubType && device.cmdSubType !== 'default') {
-					addCmds(this.cmdStructure.types[device.cmdType].subTypes[device.cmdSubType]);
+			if (cmdType && cmdType !== 'default') {
+				addCmds(this.cmdStructure.types[cmdType]);
+				if (cmdSubType && cmdSubType !== 'default') {
+					addCmds(this.cmdStructure.types[cmdType].subTypes[cmdSubType]);
 				}
 			}
 			this.deviceCmdCache.set(cacheKey, resultMap);
@@ -782,13 +822,13 @@ module.exports = class BaseDriver extends EventEmitter {
 				if (entry[1].cmdType !== cmdObj.type) continue;
 			} else {
 				if (entry[1].cmdType && entry[1].cmdType !== 'default' &&
-					this.config.cmds.indexOf(`${entry[1].cmdType}$~${cmdObj.id}`) !== -1) continue;
+					this.cmds.indexOf(`${entry[1].cmdType}$~${cmdObj.id}`) !== -1) continue;
 			}
 			if (cmdObj.subType) {
 				if (entry[1].cmdSubType !== cmdObj.subType) continue;
 			} else {
 				if (entry[1].cmdSubType && entry[1].cmdSubType !== 'default' &&
-					this.config.cmds.indexOf(`${cmdObj.id}~$${entry[1].cmdSubType}`) !== -1) continue;
+					this.cmds.indexOf(`${cmdObj.id}~$${entry[1].cmdSubType}`) !== -1) continue;
 			}
 			result.push(entry[1]);
 		}
@@ -836,7 +876,7 @@ module.exports = class BaseDriver extends EventEmitter {
 
 	onTriggerCmdReceivedAutocomplete(callback, args) {
 		this.logger.silly('Driver:onTriggerCmdReceivedAutocomplete(callback, args, state)', callback, args);
-		const device = this.getDevice(args.device);
+		const device = this.getDevice(args.args.device);
 		if (device) {
 			const cmdMap = this.getCmdsForDevice(device);
 			const resultList = [];
@@ -849,7 +889,7 @@ module.exports = class BaseDriver extends EventEmitter {
 					});
 				}
 			}
-			callback(null, resultList.sort((a, b) => this.config.cmds.indexOf(a.cmd) - this.config.cmds.indexOf(b.cmd)));
+			callback(null, resultList.sort((a, b) => this.cmds.indexOf(a.cmd) - this.cmds.indexOf(b.cmd)));
 		} else {
 			callback('Could not find device');
 		}

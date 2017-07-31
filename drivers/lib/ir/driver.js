@@ -2,6 +2,8 @@
 
 const BaseDriver = require('../BaseDriver');
 const Signal = require('./signal');
+const cmdSort = require('./cmdSort').reverse();
+const REG_STRIP_TYPES = new RegExp(/(.*\$~|~\$.*)/g);
 
 module.exports = class Driver extends BaseDriver {
 	constructor(driverConfig) {
@@ -10,20 +12,61 @@ module.exports = class Driver extends BaseDriver {
 
 	init(exports, connectedDevices, callback) {
 		super.init(exports, connectedDevices, callback);
+
+		// Register capability listeners to update state when a known capabilitycommand is send/received
+		if (this.config.capabilityToCommandMap) {
+			['onoff', 'volume_mute'].forEach(capability => {
+				if (this.config.capabilities.indexOf(capability) !== -1 &&
+					this.config.capabilityToCommandMap.hasOwnProperty(capability)) {
+					const cases = {};
+					if (Array.isArray(this.config.capabilityToCommandMap[capability])) {
+						if (this.config.capabilityToCommandMap[capability].length === 1) {
+							cases.toggle = this.config.capabilityToCommandMap[capability][0];
+						} else {
+							cases.on = this.config.capabilityToCommandMap[capability][0];
+							cases.off = this.config.capabilityToCommandMap[capability][1];
+							cases.toggle = this.config.capabilityToCommandMap[capability][3];
+						}
+					} else {
+						cases.toggle = this.config.capabilityToCommandMap[capability];
+					}
+					const updateState = (device, cmd) => {
+						cmd = this.emulateToggleBits ? cmd.replace(/_1_$/, '') : cmd;
+						if ((cases.toggle && cases.toggle === cmd) || (cases.on && cases.on === cmd) ||
+							(cases.off && cases.off === cmd)) {
+							const state = this.getState(device);
+							state[capability] = cases.toggle === cmd ? !state[capability] : cases.on === cmd;
+							this.setState(device, state);
+							this.realtime(device, capability, state[capability]);
+							this.logger.info(`updated capability "${capability}" to ${state[capability]}`);
+						}
+					};
+
+					this.on('device_cmd_received', updateState);
+					this.on('device_cmd_send', updateState);
+				}
+			});
+		}
+
 		if (this.config.actions) {
-			if (this.config.actions.find(actions => actions.id === `${this.config.id}:send_cmd_sequence`)) {
+			if (this.config.actions.some(actions => actions.id === `${this.config.id}:send_cmd_sequence`)) {
 				Homey.manager('flow').on(`action.${this.config.id}:send_cmd_sequence`, (callback, args) => {
 					this.logger.verbose(`Driver->action.${this.config.id}:send_cmd_sequence(callback, args)`, callback, args);
 					this.onActionSendCmdSequence(callback, args);
 				});
 			}
-			if (this.config.actions.find(actions => actions.id === `${this.config.id}:send_cmd_number`)) {
+			if (this.config.actions.some(action => action.id === `${this.config.id}:send_cmd_number`)) {
 				Homey.manager('flow').on(`action.${this.config.id}:send_cmd_number`, (callback, args) => {
 					this.logger.verbose(`Driver->action.${this.config.id}:send_cmd_number(callback, args)`, callback, args);
 					this.onActionSendCmdNumber(callback, args);
 				});
 			}
 		}
+	}
+
+	sortCmd(cmdList, cmdA, cmdB) {
+		const res = cmdSort.indexOf(cmdB.replace(REG_STRIP_TYPES, '')) - cmdSort.indexOf(cmdA.replace(REG_STRIP_TYPES, ''));
+		return res === -2 ? cmdList.indexOf(cmdA) - cmdList.indexOf(cmdB) : res;
 	}
 
 	_payloadToData(payload) { // Convert received data to usable variables
@@ -101,7 +144,9 @@ module.exports = class Driver extends BaseDriver {
 		this.logger.silly('Driver:onActionSendCmd(callback, args)', callback, args);
 		const device = this.getDevice(args.device);
 		if (device) {
-			Promise.all(String(args.number).split('').map(number => this.sendCmd(device, `number_${number}`)))
+			Promise.all(String(args.number).split('').map(number =>
+				this.sendCmd(device, `${this.signalOptions.cmdNumberPrefix}${number}`))
+			)
 				.then(() => callback(null, true))
 				.catch(callback);
 		} else {
@@ -149,7 +194,7 @@ module.exports = class Driver extends BaseDriver {
 			this.logger.verbose(
 				'Driver:pair->get_device(data, callback)+this.pairingDevice', data, callback, this.pairingDevice
 			);
-			callback(null, this.pairingDevice);
+			callback(null, data && Object.keys(data).length ? this.getDevice(data) : this.pairingDevice);
 		});
 
 		socket.on('program_send', (data, callback) => {
@@ -244,14 +289,6 @@ module.exports = class Driver extends BaseDriver {
 			this.logger.verbose('Driver:pair->done(data, callback)+this.pairingDevice', data, callback, this.pairingDevice);
 			if (!this.pairingDevice) {
 				return callback(new Error('433_generator.error.no_device'));
-			}
-			if (this.pairingDevice.data.metadata) {
-				if (this.pairingDevice.data.metadata.cmdType) {
-					this.pairingDevice.data.cmdType = this.pairingDevice.data.metadata.cmdType;
-				}
-				if (this.pairingDevice.data.metadata.cmdSubType) {
-					this.pairingDevice.data.cmdSubType = this.pairingDevice.data.metadata.cmdSubType;
-				}
 			}
 			return callback(null, this.pairingDevice);
 		});

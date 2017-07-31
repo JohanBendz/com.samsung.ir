@@ -29,6 +29,7 @@ module.exports = class BaseSignal extends EventEmitter {
 		this.payloadParser = parser || (payload => ({ payload: SignalManager.bitArrayToString(payload) }));
 		this.debounceTimeout = Number(options.debounceTime) || 500;
 		this.minTxInterval = options.minTxInterval;
+		this.signalDefinition = options.signalDefinition;
 		this.signalKey = signalKey;
 		this.lastTx = 0;
 
@@ -214,7 +215,7 @@ module.exports = class BaseSignal extends EventEmitter {
 	}
 
 	sendCmd(cmd) {
-		this.logger.silly('Signal:sendCmd(cmd)', cmd);
+		this.logger.verbose('Signal:sendCmd(cmd)', cmd);
 		let registerLockKey = Math.random();
 		while (registerLock.get(this.signalKey).has(registerLockKey)) {
 			registerLockKey = Math.random();
@@ -223,11 +224,11 @@ module.exports = class BaseSignal extends EventEmitter {
 			return new Promise((resolve, reject) => {
 				const send = () => this.signal.cmd(cmd, (err, result) => { // Send the cmd to device
 					if (err) { // Print error if there is one
-						this.logger.warn(`[Signal ${this.signalKey}] sending cmd failed:`, err);
+						this.logger.warn(`[Signal ${this.signalKey}] sending cmd "${cmd}" failed:`, err);
 						reject(err);
 					} else {
 						this.logger.info(`[Signal ${this.signalKey}] send cmd:`, cmd);
-						this.signal.emit('cmd_send', cmd);
+						this.emit('cmd_send', cmd);
 						resolve(result);
 					}
 				});
@@ -300,5 +301,10 @@ module.exports = class BaseSignal extends EventEmitter {
 			debouncer.reset();
 		}
 		return null;
+	}
+
+	shouldToggle(){
+		this.toggleBool = !this.toggleBool;
+		return this.toggleBool;
 	}
 };
