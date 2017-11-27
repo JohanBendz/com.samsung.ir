@@ -114,7 +114,7 @@ const config = {
 				prefixData: [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
 				interval: 100,
 				sensitivity: 0.5,
-				repetitions: 1,
+				repetitions: 5,
 				minimalLength: 32,
 				maximalLength: 32,
 				parseCmd: id => {

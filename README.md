@@ -2,4 +2,7 @@
 
 This app enables Homey to listen to signals from Samsung IR remotes and can send IR remote signals to your Samsung TV.
 
-Currently this app is in Beta. When you experience a bug or issue please report it on the Github page here: https://github.com/athombv/com.samsung.ir/issues
+# Changelog
+
+#### v1.1.0
+Increased default command repetitions to 5 (from 1) to ensure the signal is received by the tv.
