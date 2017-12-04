@@ -3,7 +3,7 @@
   "name": {
     "en": "Samsung Tv IR"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "compatibility": ">=1.5.3",
   "author": {
     "name": "Athom B.V.",
@@ -59,7 +59,7 @@
           0,
           0
         ],
-        "interval": 100,
+        "interval": 5000,
         "sensitivity": 0.5,
         "repetitions": 5,
         "minimalLength": 32,

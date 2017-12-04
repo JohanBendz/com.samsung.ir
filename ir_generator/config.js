@@ -112,7 +112,7 @@ const config = {
 					[590, 1690],
 				],
 				prefixData: [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-				interval: 100,
+				interval: 5000,
 				sensitivity: 0.5,
 				repetitions: 5,
 				minimalLength: 32,
