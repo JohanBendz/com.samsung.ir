@@ -1,7 +1,11 @@
 'use strict';
 
-function init() {
+const Homey = require('homey');
 
+class SamsungIR extends Homey.App {
+	onInit() {
+		this.log('Samsung IR is running...');
+	}
 }
 
-module.exports.init = init;
+module.exports = SamsungIR;

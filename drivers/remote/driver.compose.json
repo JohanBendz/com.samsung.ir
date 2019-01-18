@@ -1,0 +1,89 @@
+{
+	"$extends": [
+		"rf.ir_remote"
+	],
+	"id": "remote",
+      "name": {
+        "en": "Samsung Remote",
+        "nl": "Samsung Afstandsbediening"
+      },
+	"class": "tv",
+	"icon": "{{driverPath}}/assets/remote.svg",
+	"images": {
+		"small": "{{driverPath}}/assets/images/small.jpg",
+		"large": "{{driverPath}}/assets/images/large.jpg"
+	},
+	"capabilities": [
+		"onoff",
+		"volume_mute",
+		"volume_up",
+		"volume_down",
+		"channel_up",
+		"channel_down"
+	],
+	"rf": {
+		"signal": "samsung_ir",
+		"minTxInterval": 250,
+		"capabilityToCommandMap": {
+			"onoff": {
+				"true": "POWER_ON",
+				"false": "POWER_OFF",
+				"toggle": "onoff"
+			},
+			"volume_mute": {
+				"toggle": "mute"
+			},
+			"volume_up": "VOLUME_UP",
+			"volume_down": "VOLUME_DOWN",
+			"channel_up": "CHANNEL_UP",
+			"channel_down": "CHANNEL_DOWN"
+		}
+	},
+	"$flow": {
+		"triggers": [
+			{
+				"id": "{{driverId}}:cmd_received",
+				"title": { 
+					"en": "Button is Pressed",
+					"nl": "Knop is Ingedrukt"
+				},
+				"args": [
+					{
+						"name": "cmd",
+						"type": "autocomplete"
+					}
+				]
+			}
+		],
+		"actions": [
+			{
+				"id": "{{driverId}}:send_cmd",
+				"title": {
+					"en": "Send Command",
+					"nl": "Verzend Commando"
+				},
+				"args": [
+					{
+						"name": "cmd",
+						"type": "autocomplete"
+					}
+				]
+			},
+			{
+				"id": "{{driverId}}:send_cmd_number",
+				"title": {
+					"en": "Set Channel",
+					"nl": "Zet op Kanaal"
+				},
+				"args": [
+					{
+						"name": "number",
+						"type": "number",
+						"min": 0,
+						"max": 9999
+					}
+				]
+			}
+		]
+	}
+}
